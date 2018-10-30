@@ -6,6 +6,7 @@ BigramSplitter.py
 Created by Mikio Hokari, CMScom and Manabu Terada, CMScom on 2009-09-30.
 """
 import unicodedata
+import pythai
 
 # from zope.interface import implements
 from Products.ZCTextIndex.ISplitter import ISplitter
@@ -28,6 +29,16 @@ def bigram(u, limit=1):
         金 -> []
     """
     return [u[i:i+2] for i in xrange(len(u) - limit)]
+
+ 
+# An ugly hack for Benar Thai site
+# Using the split function in pythai: https://pypi.org/project/pythai/
+# Make it work with Thai language in Plone (Not bi-gram anymore though)
+def pythai_split(u, limit=1):
+    """ 
+    Using PyThai to split thai words
+    """
+    return pythai.split(u)
 
 
 def process_str_post(s, enc):
@@ -95,7 +106,7 @@ def process_unicode(uni):
             if not rx_all.match(sword[0]):
                 yield sword
             else:
-                for x in bigram(sword, 0):
+                for x in pythai_split(sword, 0):
                     yield x
 
 
@@ -118,7 +129,7 @@ def process_unicode_glob(uni):
                 if len(sword) == 1:
                     bigramed = [sword + u"*"]
                 else:
-                    bigramed = bigram(sword, limit)
+                    bigramed = pythai_split(sword, limit)
                 for x in bigramed:
                     yield x
 
